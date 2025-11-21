@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "aceternityui": {
+      "command": "npx",
+      "args": ["aceternityui-mcp"]
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp"
+    },
+    "motion": {
+      "command": "npx",
+      "args": ["-y", "motion-ai"]
+    }
+  }
+}
