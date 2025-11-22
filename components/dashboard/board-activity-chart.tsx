@@ -43,13 +43,13 @@ export function BoardActivityChart({ data }: BoardActivityChartProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <Card className="p-6">
-        <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Most Active Boards</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Activity in the last 30 days</p>
+      <Card className="p-4 sm:p-6">
+        <div className="mb-4 flex items-start justify-between gap-2 sm:mb-6">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">Most Active Boards</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Activity in the last 30 days</p>
           </div>
-          <Activity className="h-6 w-6 text-gray-400" />
+          <Activity className="h-5 w-5 flex-shrink-0 text-gray-400 sm:h-6 sm:w-6" />
         </div>
 
         {chartData.length === 0 ? (
@@ -58,7 +58,7 @@ export function BoardActivityChart({ data }: BoardActivityChartProps) {
           </div>
         ) : (
           <>
-            <div className="h-80 sm:h-64">
+            <div className="h-96 sm:h-80 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} layout="vertical">
                   <XAxis type="number" className="text-xs" />
@@ -66,8 +66,11 @@ export function BoardActivityChart({ data }: BoardActivityChartProps) {
                     type="category"
                     dataKey="name"
                     className="text-xs"
-                    width={80}
+                    width={60}
                     tick={{ fill: "currentColor" }}
+                    tickFormatter={(value) => {
+                      return value.length > 10 ? `${value.substring(0, 10)}...` : value;
+                    }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -109,25 +112,27 @@ export function BoardActivityChart({ data }: BoardActivityChartProps) {
               </ResponsiveContainer>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-4 border-t pt-4 dark:border-gray-700 md:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-3 border-t pt-4 dark:border-gray-700 sm:mt-6 sm:gap-4 lg:grid-cols-2 lg:gap-6">
               {chartData.slice(0, 3).map((board) => (
                 <Link
                   key={board.id}
                   href={`/protected/organizations/${board.orgId}/board/${board.id}`}
-                  className="group flex flex-col items-start gap-3 rounded-lg border p-3 transition-all hover:border-blue-500 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-blue-900/20 sm:flex-row sm:items-center sm:justify-between"
+                  className="group flex items-center gap-3 rounded-lg border p-3 transition-all hover:border-blue-500 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-blue-900/20 sm:p-4"
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="h-10 w-10 rounded-lg"
-                      style={{ backgroundColor: board.backgroundColor || board.color }}
-                    />
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{board.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{board.totalCards} cards</p>
-                    </div>
+                  <div
+                    className="h-10 w-10 flex-shrink-0 rounded-lg sm:h-12 sm:w-12"
+                    style={{ backgroundColor: board.backgroundColor || board.color }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className=" font-medium text-gray-900 dark:text-white" title={board.name}>
+                      {board.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{board.totalCards} cards</p>
                   </div>
-                  <div className="text-left sm:text-right">
-                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{board.activityCount}</p>
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400 sm:text-xl">
+                      {board.activityCount}
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">activities</p>
                   </div>
                 </Link>

@@ -4,12 +4,14 @@ import { getInviteByToken } from "@/lib/actions/invites";
 import { InviteAcceptanceClient } from "./invite-acceptance-client";
 
 interface InvitePageProps {
-  params: {
+  params: Promise<{
     token: string;
-  };
+  }>;
 }
 
 export default async function InvitePage({ params }: InvitePageProps) {
+  const { token } = await params;
+
   const supabase = await createClient();
 
   const {
@@ -17,7 +19,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
   } = await supabase.auth.getUser();
 
   // Get invite details
-  const result = await getInviteByToken(params.token);
+  const result = await getInviteByToken(token);
 
   if (!result.success || !result.data) {
     return (
@@ -35,5 +37,5 @@ export default async function InvitePage({ params }: InvitePageProps) {
     );
   }
 
-  return <InviteAcceptanceClient inviteInfo={result.data} user={user} token={params.token} />;
+  return <InviteAcceptanceClient inviteInfo={result.data} user={user} token={token} />;
 }

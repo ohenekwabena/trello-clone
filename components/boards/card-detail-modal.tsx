@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlertDialog } from "@/components/ui/alert-dialog";
 
 interface CardDetailModalProps {
   card: Card;
@@ -26,6 +27,7 @@ export function CardDetailModal({ card, isOpen, onClose, onRefresh }: CardDetail
   const [activities, setActivities] = useState<CardActivityWithActor[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -68,11 +70,10 @@ export function CardDetailModal({ card, isOpen, onClose, onRefresh }: CardDetail
   };
 
   const handleDelete = async () => {
-    if (!confirm("Delete this card? This action cannot be undone.")) return;
-
     setIsLoading(true);
     const result = await deleteCard(card.id);
     if (result.success) {
+      setShowDeleteConfirm(false);
       onClose();
       onRefresh();
     }
@@ -269,7 +270,7 @@ export function CardDetailModal({ card, isOpen, onClose, onRefresh }: CardDetail
                       </Button>
 
                       <Button
-                        onClick={handleDelete}
+                        onClick={() => setShowDeleteConfirm(true)}
                         disabled={isLoading}
                         variant="outline"
                         className="w-full text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
@@ -297,6 +298,18 @@ export function CardDetailModal({ card, isOpen, onClose, onRefresh }: CardDetail
               </div>
             </div>
           </motion.div>
+
+          {/* Delete Card Confirmation */}
+          <AlertDialog
+            open={showDeleteConfirm}
+            onOpenChange={setShowDeleteConfirm}
+            title="Delete Card?"
+            description={`Are you sure you want to delete "${card.title}"? This action cannot be undone.`}
+            actionLabel="Delete Card"
+            onAction={handleDelete}
+            isDestructive
+            isLoading={isLoading}
+          />
         </>
       )}
     </AnimatePresence>

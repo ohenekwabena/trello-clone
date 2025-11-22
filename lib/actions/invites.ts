@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import crypto from "crypto";
 import type { OrganizationInvite, CreateInviteInput, InviteInfo } from "@/lib/types/organization";
 import type { UserProfile } from "@/lib/types/user";
+import { sendInviteEmail } from "@/lib/utils/email";
 
 export interface ActionResponse<T = void> {
   success: boolean;
@@ -39,6 +40,20 @@ export async function createOrganizationInvite(input: CreateInviteInput): Promis
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(input.email)) {
       return { success: false, error: "Invalid email address" };
+    }
+
+    // Check if the email belongs to an existing user
+    const { data: existingUser, error: userCheckError } = await supabase
+      .from("user_profiles")
+      .select("id, email")
+      .eq("email", input.email.toLowerCase())
+      .single();
+
+    if (userCheckError || !existingUser) {
+      return {
+        success: false,
+        error: "This user hasn't signed up yet. Only existing users can be invited to join the organization.",
+      };
     }
 
     // Check if user has permission (owner or admin)
@@ -105,9 +120,49 @@ export async function createOrganizationInvite(input: CreateInviteInput): Promis
       return { success: false, error: error.message };
     }
 
-    // In production, send email here
-    // For now, log the invite link
+    // Generate invite link
     const inviteLink = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/invite/${token}`;
+
+    // Get inviter profile for email
+    const { data: inviterProfile } = await supabase
+      .from("user_profiles")
+      .select("display_name, email")
+      .eq("id", user.id)
+      .single();
+
+    // Get organization details
+    const { data: orgData } = await supabase.from("organizations").select("name").eq("id", input.org_id).single();
+
+    // Send invite email directly
+    try {
+      const emailResult = await sendInviteEmail({
+        to: input.email.toLowerCase(),
+        inviteUrl: inviteLink,
+        organizationName: orgData?.name || "Organization",
+        inviterName: inviterProfile?.display_name || inviterProfile?.email || "A team member",
+        role: input.role,
+      });
+
+      if (emailResult.success) {
+        console.log("✅ Invite email sent successfully to:", input.email);
+
+        // Update invite record to mark email as sent
+        await supabase
+          .from("organization_invites")
+          .update({
+            email_sent: true,
+            email_sent_at: new Date().toISOString(),
+          })
+          .eq("id", data.id);
+      } else {
+        console.error("Failed to send invite email:", emailResult.error);
+        // Don't fail the entire operation if email fails
+      }
+    } catch (emailError) {
+      console.error("Error sending invite email:", emailError);
+      // Don't fail the entire operation if email fails
+    }
+
     console.log("📧 Invite created for:", input.email);
     console.log("🔗 Invite link:", inviteLink);
     console.log("⏰ Expires:", expiresAt.toISOString());
@@ -270,10 +325,10 @@ export async function declineOrganizationInvite(token: string): Promise<ActionRe
       return { success: false, error: "Not authenticated" };
     }
 
-    // Get invite
+    // Get invite - select only the columns we need
     const { data: invite, error: inviteError } = await supabase
       .from("organization_invites")
-      .select("*")
+      .select("id, org_id, email, token")
       .eq("token", token)
       .single();
 
@@ -385,10 +440,10 @@ export async function resendOrganizationInvite(inviteId: string): Promise<Action
       return { success: false, error: "Not authenticated" };
     }
 
-    // Get invite
+    // Get invite - select only the columns we need
     const { data: invite, error: inviteError } = await supabase
       .from("organization_invites")
-      .select("*")
+      .select("id, org_id, email, role, invited_by")
       .eq("id", inviteId)
       .single();
 
@@ -407,6 +462,8 @@ export async function resendOrganizationInvite(inviteId: string): Promise<Action
     if (memberError || !memberData) {
       return { success: false, error: "Access denied" };
     }
+
+    console.log("Member data: ", memberData);
 
     if (!["owner", "admin"].includes(memberData.role)) {
       return { success: false, error: "Only owners and admins can resend invites" };
@@ -431,8 +488,45 @@ export async function resendOrganizationInvite(inviteId: string): Promise<Action
       return { success: false, error: error.message };
     }
 
-    // Log new invite link
+    // Get inviter and organization details
+    const { data: inviterProfile } = await supabase
+      .from("user_profiles")
+      .select("display_name, email")
+      .eq("id", user.id)
+      .single();
+
+    const { data: orgData } = await supabase.from("organizations").select("name").eq("id", invite.org_id).single();
+
     const inviteLink = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/invite/${newToken}`;
+
+    // Send invite email directly
+    try {
+      const emailResult = await sendInviteEmail({
+        to: invite.email,
+        inviteUrl: inviteLink,
+        organizationName: orgData?.name || "Organization",
+        inviterName: inviterProfile?.display_name || inviterProfile?.email || "A team member",
+        role: invite.role,
+      });
+
+      if (emailResult.success) {
+        console.log("✅ Invite email resent successfully to:", invite.email);
+
+        // Update invite record
+        await supabase
+          .from("organization_invites")
+          .update({
+            email_sent: true,
+            email_sent_at: new Date().toISOString(),
+          })
+          .eq("id", inviteId);
+      } else {
+        console.error("Failed to send invite email:", emailResult.error);
+      }
+    } catch (emailError) {
+      console.error("Error sending invite email:", emailError);
+    }
+
     console.log("📧 Invite resent to:", invite.email);
     console.log("🔗 New invite link:", inviteLink);
     console.log("⏰ New expiration:", newExpiresAt.toISOString());

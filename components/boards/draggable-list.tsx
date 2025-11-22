@@ -23,9 +23,21 @@ interface BoardListProps {
   boardId: string;
   onCardClick: (card: Card) => void;
   onRefresh: () => void;
+  updateListWithOptimism?: (listId: string, updates: { title?: string; position?: number }) => Promise<any>;
+  deleteListWithOptimism?: (listId: string) => Promise<any>;
+  createCardWithOptimism?: (input: any) => Promise<any>;
 }
 
-export function BoardList({ list, cards, boardId, onCardClick, onRefresh }: BoardListProps) {
+export function BoardList({
+  list,
+  cards,
+  boardId,
+  onCardClick,
+  onRefresh,
+  updateListWithOptimism,
+  deleteListWithOptimism,
+  createCardWithOptimism,
+}: BoardListProps) {
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -63,22 +75,37 @@ export function BoardList({ list, cards, boardId, onCardClick, onRefresh }: Boar
 
     setIsLoading(true);
     const position = await getNextCardPosition(list.id);
-    const result = await createCard({
-      board_id: boardId,
-      list_id: list.id,
-      title: newCardTitle.trim(),
-      position,
-    });
 
-    if (result.success) {
+    try {
+      if (createCardWithOptimism) {
+        await createCardWithOptimism({
+          board_id: boardId,
+          list_id: list.id,
+          title: newCardTitle.trim(),
+          position,
+        });
+      } else {
+        const result = await createCard({
+          board_id: boardId,
+          list_id: list.id,
+          title: newCardTitle.trim(),
+          position,
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || "Failed to create card");
+        }
+      }
+
       setNewCardTitle("");
       setIsAddingCard(false);
       toast.success("Card created");
       onRefresh();
-    } else {
-      toast.error(result.error || "Failed to create card");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create card");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleUpdateTitle = async () => {
@@ -89,28 +116,48 @@ export function BoardList({ list, cards, boardId, onCardClick, onRefresh }: Boar
     }
 
     setIsLoading(true);
-    const result = await updateList(list.id, { title: editTitle.trim() });
-    if (result.success) {
+
+    try {
+      if (updateListWithOptimism) {
+        await updateListWithOptimism(list.id, { title: editTitle.trim() });
+      } else {
+        const result = await updateList(list.id, { title: editTitle.trim() });
+        if (!result.success) {
+          throw new Error(result.error || "Failed to update list");
+        }
+      }
+
       setIsEditingTitle(false);
       toast.success("List updated");
       onRefresh();
-    } else {
-      toast.error(result.error || "Failed to update list");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update list");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleDeleteList = async () => {
     setIsLoading(true);
-    const result = await deleteList(list.id);
-    if (result.success) {
+
+    try {
+      if (deleteListWithOptimism) {
+        await deleteListWithOptimism(list.id);
+      } else {
+        const result = await deleteList(list.id);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to delete list");
+        }
+      }
+
       toast.success("List deleted successfully");
       setShowDeleteConfirm(false);
       onRefresh();
-    } else {
-      toast.error(result.error || "Failed to delete list. Please try again.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete list");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -269,7 +316,15 @@ export function BoardList({ list, cards, boardId, onCardClick, onRefresh }: Boar
   );
 }
 
-export function AddListButton({ boardId, onRefresh }: { boardId: string; onRefresh: () => void }) {
+export function AddListButton({
+  boardId,
+  onRefresh,
+  createListWithOptimism,
+}: {
+  boardId: string;
+  onRefresh: () => void;
+  createListWithOptimism?: (input: any) => Promise<any>;
+}) {
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -279,21 +334,35 @@ export function AddListButton({ boardId, onRefresh }: { boardId: string; onRefre
 
     setIsLoading(true);
     const position = await getNextListPosition(boardId);
-    const result = await createList({
-      board_id: boardId,
-      title: title.trim(),
-      position,
-    });
 
-    if (result.success) {
+    try {
+      if (createListWithOptimism) {
+        await createListWithOptimism({
+          board_id: boardId,
+          title: title.trim(),
+          position,
+        });
+      } else {
+        const result = await createList({
+          board_id: boardId,
+          title: title.trim(),
+          position,
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || "Failed to create list");
+        }
+      }
+
       setTitle("");
       setIsAdding(false);
       toast.success("List created");
       onRefresh();
-    } else {
-      toast.error(result.error || "Failed to create list");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create list");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   if (!isAdding) {

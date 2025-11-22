@@ -16,7 +16,7 @@ interface InviteMembersModalProps {
   organizationName: string;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: () => void; // Add this prop
 }
 
 export function InviteMembersModal({
@@ -131,10 +131,17 @@ export function InviteMembersModal({
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-600 dark:text-green-400 flex items-center gap-2"
+                    className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-600 dark:text-green-400"
                   >
-                    <Mail className="w-4 h-4" />
-                    {success}
+                    <div className="flex items-start gap-2">
+                      <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium">{success}</p>
+                        <p className="text-xs mt-1 text-green-600/80 dark:text-green-400/80">
+                          If they don't see it, ask them to check their spam folder.
+                        </p>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
 
@@ -178,8 +185,7 @@ export function InviteMembersModal({
                 {/* Info Box */}
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <p className="text-xs text-blue-800 dark:text-blue-300">
-                    💡 The invite link will be valid for 7 days. The recipient will need to sign in or create an account
-                    to accept the invitation.
+                    💡 You can only invite users who already have an account. The invite link will be valid for 7 days.
                   </p>
                 </div>
 

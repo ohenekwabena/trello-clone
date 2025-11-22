@@ -3,23 +3,17 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,8 +32,25 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/protected");
+
+      // Get user metadata to check invite status
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      // Check if user needs password setup
+      if (user?.user_metadata?.needs_password_setup === true) {
+        const inviteParam = inviteToken ? `?invite=${inviteToken}` : "";
+        router.push(`/auth/set-password${inviteParam}`);
+        return;
+      }
+
+      // Redirect based on invite token
+      if (inviteToken) {
+        router.push(`/invite/${inviteToken}`);
+      } else {
+        router.push("/protected");
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -53,7 +64,9 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            {inviteToken
+              ? "Sign in to accept your organization invitation"
+              : "Enter your email below to login to your account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -96,7 +109,7 @@ export function LoginForm({
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
               <Link
-                href="/auth/sign-up"
+                href={inviteToken ? `/auth/sign-up?invite=${inviteToken}` : "/auth/sign-up"}
                 className="underline underline-offset-4"
               >
                 Sign up

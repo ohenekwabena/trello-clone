@@ -3,29 +3,37 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { acceptOrganizationInvite, getInviteByToken } from "@/lib/actions/invites";
 
-export function SignUpForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [organizationName, setOrganizationName] = useState<string | null>(null);
   const router = useRouter();
+
+  // Load invite details if token exists
+  useEffect(() => {
+    if (inviteToken) {
+      getInviteByToken(inviteToken).then((result) => {
+        if (result.success && result.data) {
+          setEmail(result.data.invite.email);
+          setOrganizationName(result.data.organization.name);
+        }
+      });
+    }
+  }, [inviteToken]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,14 +48,38 @@ export function SignUpForm({
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
+          emailRedirectTo: inviteToken
+            ? `${window.location.origin}/invite/${inviteToken}`
+            : `${window.location.origin}/protected`,
         },
       });
-      if (error) throw error;
+
+      if (signUpError) throw signUpError;
+
+      // If there's an invite token, accept it automatically
+      if (inviteToken) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const acceptResult = await acceptOrganizationInvite(inviteToken);
+
+          if (acceptResult.success) {
+            router.push(`/protected/organizations/${acceptResult.data?.org_id}`);
+            return;
+          } else {
+            // If auto-accept fails, redirect to invite page
+            router.push(`/invite/${inviteToken}`);
+            return;
+          }
+        }
+      }
+
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
@@ -61,7 +93,9 @@ export function SignUpForm({
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+          <CardDescription>
+            {organizationName ? `Create an account to join ${organizationName}` : "Create a new account"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
@@ -75,7 +109,9 @@ export function SignUpForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={!!inviteToken}
                 />
+                {inviteToken && <p className="text-xs text-neutral-500">This email is from your invitation</p>}
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
@@ -108,7 +144,10 @@ export function SignUpForm({
             </div>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
+              <Link
+                href={inviteToken ? `/auth/login?invite=${inviteToken}` : "/auth/login"}
+                className="underline underline-offset-4"
+              >
                 Login
               </Link>
             </div>

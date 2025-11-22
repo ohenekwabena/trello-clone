@@ -49,7 +49,7 @@ export function OrganizationSwitcher({ currentOrgId }: OrganizationSwitcherProps
     router.push("/protected/organizations");
   };
 
-  if (loading || organizations.length === 0) {
+  if (loading) {
     return null;
   }
 

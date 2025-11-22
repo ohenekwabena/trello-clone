@@ -1,109 +1,364 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+<h1 align="center">🎯 Trello Clone - Project Management Made Simple</h1>
 
 <p align="center">
- The fastest way to build apps with Next.js and Supabase
+  A full-featured project management application inspired by Trello, built with Next.js and Supabase
 </p>
 
 <p align="center">
   <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
+  <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
+  <a href="#getting-started"><strong>Getting Started</strong></a> ·
+  <a href="#database-setup"><strong>Database Setup</strong></a> ·
+  <a href="#project-structure"><strong>Project Structure</strong></a>
 </p>
+
 <br/>
 
-## Features
+## 📋 Overview
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+This is a modern, feature-rich Trello clone that enables teams to organize projects, track tasks, and collaborate effectively. Built with cutting-edge technologies, it provides a seamless user experience with real-time updates, drag-and-drop functionality, and comprehensive project analytics.
 
-## Demo
+## ✨ Features
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+### 🔐 Authentication & User Management
+- Email/password authentication with Supabase Auth
+- Password reset and email verification
+- Secure session management with cookies
+- Protected routes and role-based access
 
-## Deploy to Vercel
+### 🏢 Organization Management
+- Create and manage multiple organizations
+- Role-based permissions (Owner, Admin, Member)
+- Invite members via email with secure time-limited tokens
+- Automatic role assignment and access control
+- View organization members and manage permissions
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### 📊 Board & Task Management
+- Create unlimited boards within organizations
+- Drag-and-drop lists and cards
+- Card details with descriptions and due dates
+- Activity tracking and audit logs
+- Move cards between lists seamlessly
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+### 📈 Dashboard & Analytics
+- Real-time project overview
+- Board activity charts and statistics
+- Overdue cards tracking
+- Team collaboration metrics
+- Activity timeline and due date calendar
+- Performance trends and insights
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### 🎨 Modern UI/UX
+- Beautiful, responsive design with Tailwind CSS
+- Smooth animations with Framer Motion
+- Dark mode support
+- Accessible components with shadcn/ui
+- Toast notifications for user feedback
+- Loading states and error handling
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## 🛠️ Tech Stack
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+- **Framework:** [Next.js 15](https://nextjs.org) (App Router)
+- **Language:** TypeScript
+- **Database:** [Supabase](https://supabase.com) (PostgreSQL)
+- **Authentication:** Supabase Auth with SSR
+- **Styling:** [Tailwind CSS](https://tailwindcss.com)
+- **Components:** [shadcn/ui](https://ui.shadcn.com)
+- **Drag & Drop:** [@dnd-kit](https://dndkit.com)
+- **Charts:** [Recharts](https://recharts.org)
+- **Animations:** [Framer Motion](https://www.framer.com/motion)
+- **Email:** [Resend](https://resend.com)
+- **Icons:** [Lucide React](https://lucide.dev) & [Tabler Icons](https://tabler.io/icons)
 
-## Clone and run locally
+## 🚀 Getting Started
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+### Prerequisites
 
-2. Create a Next.js app using the Supabase Starter template npx command
+Before you begin, ensure you have:
+- Node.js 18+ installed
+- A Supabase account ([create one here](https://database.new))
+- A Resend account for email functionality ([sign up here](https://resend.com))
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+### 1. Clone the Repository
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+```bash
+git clone https://github.com/yourusername/trello-clone.git
+cd trello-clone
+```
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+### 2. Install Dependencies
 
-3. Use `cd` to change into the app's directory
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
 
-   ```bash
-   cd with-supabase-app
-   ```
+### 3. Set Up Environment Variables
 
-4. Rename `.env.example` to `.env.local` and update the following:
+Create a `.env.local` file in the root directory and add the following:
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+# Email Configuration (Resend)
+RESEND_API_KEY=your_resend_api_key
+EMAIL_FROM=noreply@yourdomain.com
 
-5. You can now run the Next.js local development server:
+# Site Configuration
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-   ```bash
-   npm run dev
-   ```
+**Where to find these values:**
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+- **Supabase credentials:** Go to your [Supabase Dashboard](https://supabase.com/dashboard) → Select your project → Settings → API
+  - `NEXT_PUBLIC_SUPABASE_URL` is the "Project URL"
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is the "anon/public" key
+  - `SUPABASE_SERVICE_ROLE_KEY` is the "service_role" key (keep this secret!)
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+- **Resend API key:** Go to [Resend Dashboard](https://resend.com/api-keys) → Create API Key
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+### 4. Set Up the Database
 
-## Feedback and issues
+Run the database migrations in your Supabase SQL Editor (in order):
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+```sql
+-- Navigate to: Supabase Dashboard → SQL Editor → New Query
 
-## More Supabase examples
+-- Run each migration file in sequence:
+-- 1. Organizations and members
+-- Copy/paste from: supabase/migrations/20231121000000_create_organizations.sql
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+-- 2. Invitation system
+-- Copy/paste from: supabase/migrations/20231121000001_create_invites.sql
+
+-- 3. Boards
+-- Copy/paste from: supabase/migrations/20231121000002_create_boards.sql
+
+-- 4. Lists
+-- Copy/paste from: supabase/migrations/20231121000003_create_lists.sql
+
+-- 5. Cards
+-- Copy/paste from: supabase/migrations/20231121000004_create_cards.sql
+
+-- 6. Card activities
+-- Copy/paste from: supabase/migrations/20231121000005_create_card_activities.sql
+
+-- 7. Bug fixes (latest)
+-- Copy/paste from: supabase/migrations/20241122000001_fix_accept_invite_ambiguity.sql
+-- Copy/paste from: supabase/migrations/20241122000002_fix_invite_user_references.sql
+```
+
+Alternatively, if you have the Supabase CLI installed:
+
+```bash
+# Link your project
+supabase link --project-ref your_project_ref
+
+# Push migrations
+supabase db push
+```
+
+### 5. Run the Development Server
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📁 Project Structure
+
+```
+trello-clone/
+├── app/                          # Next.js App Router
+│   ├── api/                      # API routes
+│   │   └── send-invite/          # Email invitation endpoint
+│   ├── auth/                     # Authentication pages
+│   │   ├── login/                # Sign in page
+│   │   ├── sign-up/              # Sign up page
+│   │   ├── forgot-password/      # Password reset
+│   │   └── ...                   # Other auth flows
+│   ├── invite/                   # Invitation acceptance
+│   │   └── [token]/              # Dynamic invite token route
+│   ├── protected/                # Protected routes (authenticated)
+│   │   ├── dashboard/            # Main dashboard with analytics
+│   │   ├── organizations/        # Organization management
+│   │   │   ├── page.tsx          # Organizations list
+│   │   │   └── [id]/             # Single organization view
+│   │   └── profile/              # User profile
+│   ├── globals.css               # Global styles
+│   ├── layout.tsx                # Root layout
+│   └── page.tsx                  # Home page
+│
+├── components/                   # React components
+│   ├── auth/                     # Authentication components
+│   ├── boards/                   # Board-related components
+│   │   ├── board-list.tsx        # Display boards
+│   │   ├── card-item.tsx         # Individual card
+│   │   ├── draggable-card.tsx    # Drag-and-drop card
+│   │   └── draggable-list.tsx    # Drag-and-drop list
+│   ├── dashboard/                # Dashboard components
+│   │   ├── overview-stats.tsx    # Statistics cards
+│   │   ├── board-activity-chart.tsx
+│   │   ├── due-date-calendar.tsx
+│   │   └── ...
+│   ├── organizations/            # Organization components
+│   │   ├── invite-members-modal.tsx
+│   │   ├── pending-invites-list.tsx
+│   │   ├── members-list.tsx
+│   │   └── ...
+│   └── ui/                       # shadcn/ui components
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── dialog.tsx
+│       └── ...
+│
+├── lib/                          # Utility functions and actions
+│   ├── actions/                  # Server actions
+│   │   ├── organizations.ts      # Organization CRUD
+│   │   ├── invites.ts           # Invitation system
+│   │   ├── boards.ts            # Board management
+│   │   ├── cards.ts             # Card operations
+│   │   ├── dashboard.ts         # Dashboard data
+│   │   └── ...
+│   ├── supabase/                # Supabase clients
+│   │   ├── client.ts            # Browser client
+│   │   ├── server.ts            # Server client
+│   │   └── middleware.ts        # Middleware client
+│   ├── types/                   # TypeScript types
+│   │   ├── organization.ts
+│   │   ├── board.ts
+│   │   └── ...
+│   └── utils.ts                 # Utility functions
+│
+├── supabase/                    # Supabase configuration
+│   └── migrations/              # Database migrations
+│       ├── 20231121000000_create_organizations.sql
+│       ├── 20231121000001_create_invites.sql
+│       ├── 20231121000002_create_boards.sql
+│       └── ...
+│
+├── .env.local                   # Environment variables (create this)
+├── components.json              # shadcn/ui config
+├── next.config.ts               # Next.js configuration
+├── package.json                 # Dependencies
+├── tailwind.config.ts           # Tailwind CSS config
+└── tsconfig.json               # TypeScript config
+```
+
+## 🗄️ Database Schema
+
+### Core Tables
+
+- **`organizations`** - Teams/workspaces
+- **`organization_members`** - User memberships with roles
+- **`organization_invites`** - Email invitations with tokens
+- **`boards`** - Project boards
+- **`lists`** - Columns within boards
+- **`cards`** - Tasks/items within lists
+- **`card_activities`** - Activity logs for cards
+
+### Security
+
+- Row Level Security (RLS) enabled on all tables
+- Users can only access data they have permission to view
+- Role-based access control (Owner, Admin, Member)
+- Secure token-based invitations with expiration
+
+## 🎯 Key Features Walkthrough
+
+### 1. Create an Organization
+
+1. Sign up or log in to your account
+2. Navigate to **Organizations** from the dashboard
+3. Click **Create Organization**
+4. Enter organization name and description
+5. You're automatically assigned as the Owner
+
+### 2. Invite Team Members
+
+1. Go to your organization page
+2. Click **Invite Members**
+3. Enter email address and select role (Admin or Member)
+4. Invitee receives an email with a secure link
+5. Link expires in 7 days
+6. Track pending invites and resend if needed
+
+### 3. Create Boards and Cards
+
+1. Within an organization, click **Create Board**
+2. Add lists (columns) to organize tasks
+3. Create cards within lists
+4. Drag and drop cards between lists
+5. Click on cards to add details, due dates, and descriptions
+
+### 4. Monitor Progress
+
+1. Visit the **Dashboard** for an overview
+2. View statistics: total cards, overdue items, completed tasks
+3. Check board activity charts
+4. See upcoming due dates in the calendar
+5. Review recent activities across all boards
+
+## 🔧 Available Scripts
+
+```bash
+# Development
+npm run dev          # Start dev server
+
+# Production
+npm run build        # Build for production
+npm run start        # Start production server
+
+# Code Quality
+npm run lint         # Run ESLint
+```
+
+## 🚢 Deployment
+
+### Deploy to Vercel
+
+1. Push your code to GitHub
+2. Import your repository in [Vercel](https://vercel.com)
+3. Add your environment variables in Vercel project settings
+4. Deploy!
+
+### Environment Variables for Production
+
+Make sure to set these in your hosting platform:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `RESEND_API_KEY`
+- `EMAIL_FROM`
+- `NEXT_PUBLIC_SITE_URL` (your production URL)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org)
+- Powered by [Supabase](https://supabase.com)
+- UI components from [shadcn/ui](https://ui.shadcn.com)
+- Inspired by [Trello](https://trello.com)
+
+---
+
+<p align="center">Made with ❤️ for better project management</p>

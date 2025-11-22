@@ -15,8 +15,8 @@ export function LogoutButton() {
   };
 
   return (
-    <div onClick={logout} className="flex items-center cursor-pointer w-full">
-      <LogOut className="mr-2 h-4 w-4" />
+    <div onClick={logout} className="flex items-center cursor-pointer w-full px-3 py-1">
+      <LogOut className="mr-3 h-4 w-4" />
       <span>Log out</span>
     </div>
   );

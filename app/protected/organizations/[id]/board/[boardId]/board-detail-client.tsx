@@ -28,13 +28,12 @@ import { Label } from "@/components/ui/label";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { ListSkeleton } from "@/components/ui/loading-skeletons";
 import { updateBoard, deleteBoard } from "@/lib/actions/boards";
-import { getBoardLists, updateList } from "@/lib/actions/lists";
-import { getBoardCards, moveCard } from "@/lib/actions/cards";
 import { BoardList as DraggableList, AddListButton } from "@/components/boards/draggable-list";
 import { DraggableCard } from "@/components/boards/draggable-card";
 import { CardDetailModal } from "@/components/boards";
-import type { Board, OrganizationRole, List, CardWithDetails } from "@/lib/types/organization";
+import type { Board, OrganizationRole, CardWithDetails } from "@/lib/types/organization";
 import toast from "react-hot-toast";
+import { useOptimisticBoard } from "@/lib/hooks/use-optimistic-board";
 
 interface BoardDetailClientProps {
   board: Board;
@@ -60,10 +59,7 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Lists and cards state
-  const [lists, setLists] = useState<List[]>([]);
-  const [cards, setCards] = useState<CardWithDetails[]>([]);
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  // Remove local lists and cards state - use only from hook
   const [selectedCard, setSelectedCard] = useState<CardWithDetails | null>(null);
 
   // Drag state
@@ -90,10 +86,25 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
     useSensor(KeyboardSensor)
   );
 
+  // Use optimistic board hook
+  const {
+    lists,
+    cards,
+    isLoading: isLoadingData,
+    loadBoardData,
+    optimisticReorderLists,
+    updateListWithOptimism,
+    moveCardWithOptimism,
+    createCardWithOptimism,
+    deleteListWithOptimism,
+    createListWithOptimism,
+    optimisticMoveCard,
+  } = useOptimisticBoard(board.id);
+
   // Load lists and cards
   useEffect(() => {
     loadBoardData();
-  }, [board.id]);
+  }, [board.id, loadBoardData]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -110,24 +121,6 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedCard, isSettingsOpen, isEditing]);
-
-  const loadBoardData = async () => {
-    setIsLoadingData(true);
-    const [listsResult, cardsResult] = await Promise.all([getBoardLists(board.id), getBoardCards(board.id)]);
-
-    console.log("Lists Result:", listsResult);
-    console.log("Cards Result:", cardsResult);
-
-    if (listsResult.success && listsResult.data) {
-      setLists(listsResult.data);
-    }
-
-    if (cardsResult.success && cardsResult.data) {
-      setCards(cardsResult.data);
-    }
-
-    setIsLoadingData(false);
-  };
 
   // Organize cards by list
   const getCardsForList = (listId: string): CardWithDetails[] => {
@@ -163,10 +156,8 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
       }
 
       if (targetListId && activeCard.list_id !== targetListId) {
-        // Optimistically update card's list
-        setCards((prev) =>
-          prev.map((card) => (card.id === active.id ? { ...card, list_id: targetListId as string } : card))
-        );
+        // Use optimistic update from hook
+        optimisticMoveCard(active.id as string, targetListId, activeCard.position);
       }
     }
   };
@@ -181,16 +172,13 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
     const activeType = active.data.current?.type;
 
     if (activeType === "list") {
-      // Reorder lists
       const oldIndex = lists.findIndex((list) => list.id === active.id);
       const newIndex = lists.findIndex((list) => list.id === over.id);
 
       if (oldIndex !== newIndex) {
         const newLists = arrayMove(lists, oldIndex, newIndex);
-        const prevLists = [...lists];
-        setLists(newLists);
+        optimisticReorderLists(newLists);
 
-        // Calculate new position
         const movedList = newLists[newIndex];
         let newPosition: number;
 
@@ -202,18 +190,14 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
           newPosition = (newLists[newIndex - 1].position + newLists[newIndex + 1].position) / 2;
         }
 
-        // Update position
-        const result = await updateList(movedList.id, { position: newPosition });
-        if (!result.success) {
-          toast.error("Failed to reorder list");
-          setLists(prevLists);
-        } else {
+        try {
+          await updateListWithOptimism(movedList.id, { position: newPosition });
           toast.success("List reordered");
-          loadBoardData();
+        } catch (error) {
+          toast.error("Failed to reorder list");
         }
       }
     } else if (activeType === "card") {
-      // Move or reorder card
       const activeCard = cards.find((c) => c.id === active.id);
       if (!activeCard) return;
 
@@ -240,37 +224,23 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
 
       if (overCardId) {
         const overIndex = targetListCards.findIndex((c) => c.id === overCardId);
-        if (overIndex === 0) {
+
+        if (overIndex === -1) {
+          newPosition = targetListCards.length > 0 ? targetListCards[targetListCards.length - 1].position + 1000 : 1000;
+        } else if (overIndex === 0) {
           newPosition = targetListCards[0].position / 2;
-        } else if (overIndex === targetListCards.length - 1) {
-          newPosition = targetListCards[overIndex].position + 1000;
         } else {
           newPosition = (targetListCards[overIndex - 1].position + targetListCards[overIndex].position) / 2;
         }
       } else {
-        // Dropped on empty list or at end
         newPosition = targetListCards.length > 0 ? targetListCards[targetListCards.length - 1].position + 1000 : 1000;
       }
 
-      // Optimistic update
-      const prevCards = [...cards];
-      setCards((prev) =>
-        prev.map((card) => (card.id === active.id ? { ...card, list_id: targetListId, position: newPosition } : card))
-      );
-
-      // Server update
-      const result = await moveCard({
-        card_id: activeCard.id,
-        target_list_id: targetListId,
-        target_position: newPosition,
-      });
-
-      if (!result.success) {
-        toast.error("Failed to move card");
-        setCards(prevCards);
-      } else {
+      try {
+        await moveCardWithOptimism(activeCard.id, targetListId, newPosition);
         toast.success("Card moved");
-        loadBoardData();
+      } catch (error) {
+        toast.error("Failed to move card");
       }
     }
   };
@@ -388,11 +358,18 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
                       boardId={board.id}
                       onCardClick={setSelectedCard}
                       onRefresh={loadBoardData}
+                      updateListWithOptimism={updateListWithOptimism}
+                      deleteListWithOptimism={deleteListWithOptimism}
+                      createCardWithOptimism={createCardWithOptimism}
                     />
                   </div>
                 ))}
               </SortableContext>
-              <AddListButton boardId={board.id} onRefresh={loadBoardData} />
+              <AddListButton
+                boardId={board.id}
+                onRefresh={loadBoardData}
+                createListWithOptimism={createListWithOptimism}
+              />
             </div>
 
             <DragOverlay>
