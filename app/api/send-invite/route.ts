@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 /**
  * API Route to send organization invite emails
  * POST /api/send-invite
- * 
+ *
  * This endpoint handles sending invite emails to users invited to join an organization.
  * It uses Supabase's built-in email functionality or can be extended with third-party
  * email services like Resend, SendGrid, or AWS SES.
@@ -27,10 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!inviteId || !email || !organizationName || !inviteToken) {
-      return NextResponse.json(
-        { success: false, error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
 
     // Initialize Supabase client
@@ -43,10 +40,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Verify the invite exists and belongs to the authenticated user's organization
@@ -58,26 +52,17 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (inviteError || !invite) {
-      return NextResponse.json(
-        { success: false, error: "Invalid invite" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid invite" }, { status: 404 });
     }
 
     // Check if invite has already been used or expired
     if (invite.status !== "pending") {
-      return NextResponse.json(
-        { success: false, error: "Invite is no longer pending" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invite is no longer pending" }, { status: 400 });
     }
 
     const expiresAt = new Date(invite.expires_at);
     if (expiresAt < new Date()) {
-      return NextResponse.json(
-        { success: false, error: "Invite has expired" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invite has expired" }, { status: 400 });
     }
 
     // Generate invite URL
@@ -94,18 +79,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (!emailSent.success) {
-      return NextResponse.json(
-        { success: false, error: emailSent.error || "Failed to send email" },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: emailSent.error || "Failed to send email" }, { status: 500 });
     }
 
     // Update invite record to mark email as sent
     const { error: updateError } = await supabase
       .from("organization_invites")
-      .update({ 
+      .update({
         email_sent: true,
-        email_sent_at: new Date().toISOString()
+        email_sent_at: new Date().toISOString(),
       })
       .eq("id", inviteId);
 
@@ -125,10 +107,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error in send-invite API:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
 

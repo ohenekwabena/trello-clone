@@ -1,6 +1,6 @@
 /**
  * Example Integration: Sending Invite Emails
- * 
+ *
  * This file demonstrates how to integrate the email sending functionality
  * into your existing invite system.
  */

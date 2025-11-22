@@ -26,9 +26,7 @@ interface SendInviteEmailResponse {
  * Send an invite email via the API route
  * This function can be called from client or server components
  */
-export async function sendInviteEmail(
-  params: SendInviteEmailParams
-): Promise<SendInviteEmailResponse> {
+export async function sendInviteEmail(params: SendInviteEmailParams): Promise<SendInviteEmailResponse> {
   try {
     const response = await fetch("/api/send-invite", {
       method: "POST",

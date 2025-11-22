@@ -1,69 +1,69 @@
 {
-  "emailSetup": {
-    "files_created": [
-      "app/api/send-invite/route.ts",
-      "lib/utils/email.ts",
-      ".env.email.example",
-      "EMAIL_SETUP_GUIDE.md",
-      "examples/email-integration-examples.ts"
-    ],
-    "next_steps": [
-      {
-        "step": 1,
-        "title": "Choose an Email Provider",
-        "description": "Select from Resend (recommended), SendGrid, or SMTP",
-        "action": "Review options in EMAIL_SETUP_GUIDE.md"
-      },
-      {
-        "step": 2,
-        "title": "Install Required Packages",
-        "options": {
-          "resend": "npm install resend",
-          "sendgrid": "npm install @sendgrid/mail",
-          "smtp": "npm install nodemailer && npm install --save-dev @types/nodemailer"
+    "emailSetup": {
+        "files_created": [
+            "app/api/send-invite/route.ts",
+            "lib/utils/email.ts",
+            ".env.email.example",
+            "EMAIL_SETUP_GUIDE.md",
+            "examples/email-integration-examples.ts"
+        ],
+        "next_steps": [
+            {
+                "step": 1,
+                "title": "Choose an Email Provider",
+                "description": "Select from Resend (recommended), SendGrid, or SMTP",
+                "action": "Review options in EMAIL_SETUP_GUIDE.md"
+            },
+            {
+                "step": 2,
+                "title": "Install Required Packages",
+                "options": {
+                    "resend": "npm install resend",
+                    "sendgrid": "npm install @sendgrid/mail",
+                    "smtp": "npm install nodemailer && npm install --save-dev @types/nodemailer"
+                }
+            },
+            {
+                "step": 3,
+                "title": "Configure Environment Variables",
+                "action": "Copy settings from .env.email.example to your .env.local file",
+                "required_vars": [
+                    "RESEND_API_KEY or SENDGRID_API_KEY or SMTP_* variables",
+                    "EMAIL_FROM",
+                    "NEXT_PUBLIC_SITE_URL"
+                ]
+            },
+            {
+                "step": 4,
+                "title": "Update API Route",
+                "action": "Uncomment the email provider code in app/api/send-invite/route.ts",
+                "lines": {
+                    "resend": "130-140",
+                    "sendgrid": "143-152",
+                    "smtp": "155-175"
+                }
+            },
+            {
+                "step": 5,
+                "title": "Update Database Schema",
+                "action": "Add email tracking columns to organization_invites table",
+                "sql": "See EMAIL_SETUP_GUIDE.md section 2"
+            },
+            {
+                "step": 6,
+                "title": "Test the Setup",
+                "action": "Send a test invite from your UI or use the curl command in the guide"
+            }
+        ],
+        "integration_options": {
+            "automatic": "Update lib/actions/invites.ts to auto-send emails",
+            "manual": "Call sendInviteEmail() from your components",
+            "hook": "Use the example React hook from examples/email-integration-examples.ts"
+        },
+        "documentation": {
+            "full_guide": "EMAIL_SETUP_GUIDE.md",
+            "examples": "examples/email-integration-examples.ts",
+            "api_reference": "app/api/send-invite/route.ts (inline comments)"
         }
-      },
-      {
-        "step": 3,
-        "title": "Configure Environment Variables",
-        "action": "Copy settings from .env.email.example to your .env.local file",
-        "required_vars": [
-          "RESEND_API_KEY or SENDGRID_API_KEY or SMTP_* variables",
-          "EMAIL_FROM",
-          "NEXT_PUBLIC_SITE_URL"
-        ]
-      },
-      {
-        "step": 4,
-        "title": "Update API Route",
-        "action": "Uncomment the email provider code in app/api/send-invite/route.ts",
-        "lines": {
-          "resend": "130-140",
-          "sendgrid": "143-152",
-          "smtp": "155-175"
-        }
-      },
-      {
-        "step": 5,
-        "title": "Update Database Schema",
-        "action": "Add email tracking columns to organization_invites table",
-        "sql": "See EMAIL_SETUP_GUIDE.md section 2"
-      },
-      {
-        "step": 6,
-        "title": "Test the Setup",
-        "action": "Send a test invite from your UI or use the curl command in the guide"
-      }
-    ],
-    "integration_options": {
-      "automatic": "Update lib/actions/invites.ts to auto-send emails",
-      "manual": "Call sendInviteEmail() from your components",
-      "hook": "Use the example React hook from examples/email-integration-examples.ts"
-    },
-    "documentation": {
-      "full_guide": "EMAIL_SETUP_GUIDE.md",
-      "examples": "examples/email-integration-examples.ts",
-      "api_reference": "app/api/send-invite/route.ts (inline comments)"
     }
-  }
 }
