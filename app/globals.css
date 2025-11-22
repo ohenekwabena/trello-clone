@@ -29,6 +29,16 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* Venus Design System Colors */
+    --venus-purple: 255 79% 55%;
+    --venus-dark-grey-900: 228 54% 23%;
+    --venus-grey-600: 222 20% 71%;
+    --venus-grey-700: 223 34% 54%;
+    --venus-grey-900: 228 49% 31%;
+    --venus-grey-300: 220 43% 96%;
+    --venus-success: 163 89% 41%;
+    --venus-error: 1 79% 52%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -64,5 +74,30 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Smooth scrolling */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom animations */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

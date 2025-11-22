@@ -56,7 +56,12 @@ export async function getUserOrganizations(): Promise<ActionResponse<Organizatio
     // Then fetch organizations
     const { data: orgs, error: orgsError } = await supabase
       .from("organizations")
-      .select("*")
+      .select(
+        `
+        *,
+        creator:user_profiles!organizations_created_by_fkey(id, email, display_name, avatar_url)
+      `
+      )
       .in("id", orgIds)
       .order("created_at", { ascending: false });
 
@@ -137,7 +142,12 @@ export async function getOrganization(organizationId: string): Promise<ActionRes
     // Fetch organization
     const { data: org, error: orgError } = await supabase
       .from("organizations")
-      .select("*")
+      .select(
+        `
+        *,
+        creator:user_profiles!organizations_created_by_fkey(id, email, display_name, avatar_url)
+      `
+      )
       .eq("id", organizationId)
       .single();
 

@@ -3,7 +3,6 @@ import { EnvVarWarning } from "@/components/env-var-warning";
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { OrganizationSwitcher } from "@/components/organizations/organization-switcher";
-import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -15,15 +14,21 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
           <div className="w-full max-w-7xl flex justify-between items-center p-3 px-5 text-sm">
             <div className="flex gap-5 items-center font-semibold">
               <Link href={"/"}>Trello Clone</Link>
+              <Link
+                href={"/protected/dashboard"}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Dashboard
+              </Link>
               <OrganizationSwitcher />
             </div>
-            {!hasEnvVars ? (
-              <EnvVarWarning />
-            ) : (
-              <Suspense>
+
+            <Suspense>
+              <div className="flex gap-2 items-center">
+                <ThemeSwitcher />
                 <AuthButton />
-              </Suspense>
-            )}
+              </div>
+            </Suspense>
           </div>
         </nav>
         <div className="flex-1 flex flex-col gap-20 max-w-7xl w-full px-5">{children}</div>

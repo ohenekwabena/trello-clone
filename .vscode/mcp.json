@@ -2,15 +2,31 @@
   "servers": {
     "aceternityui": {
       "command": "npx",
-      "args": ["aceternityui-mcp"]
+      "args": [
+        "aceternityui-mcp"
+      ]
     },
     "supabase": {
       "type": "http",
       "url": "https://mcp.supabase.com/mcp"
     },
+    "Figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    },
     "motion": {
       "command": "npx",
-      "args": ["-y", "motion-ai"]
+      "args": [
+        "-y",
+        "motion-ai"
+      ]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
   }
 }

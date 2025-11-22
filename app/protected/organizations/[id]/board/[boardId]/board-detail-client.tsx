@@ -321,7 +321,7 @@ export function BoardDetailClient({ board, role }: BoardDetailClientProps) {
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen my-8 rounded-2xl overflow-hidden"
       style={{
         backgroundColor: board.background_color,
         backgroundImage: `linear-gradient(135deg, ${board.background_color} 0%, ${adjustBrightness(

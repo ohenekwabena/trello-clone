@@ -5,7 +5,7 @@ import { BoardDetailClient } from "./board-detail-client";
 
 interface BoardPageProps {
   params: Promise<{
-    orgId: string;
+    id: string;
     boardId: string;
   }>;
 }
@@ -22,17 +22,17 @@ export default async function BoardPage({ params }: BoardPageProps) {
   }
 
   // Await params before accessing its properties
-  const { orgId, boardId } = await params;
+  const { id, boardId } = await params;
 
   const result = await getBoard(boardId);
 
   if (!result.success || !result.data) {
-    redirect(`/protected/organizations/${orgId}`);
+    redirect(`/protected/organizations/${id}`);
   }
 
   // Verify the board belongs to the organization
-  if (result.data.org_id !== orgId) {
-    redirect(`/protected/organizations/${orgId}`);
+  if (result.data.org_id !== id) {
+    redirect(`/protected/organizations/${id}`);
   }
 
   return <BoardDetailClient board={result.data} role={result.role!} />;

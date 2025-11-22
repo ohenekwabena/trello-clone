@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, Calendar, ArrowRight } from "lucide-react";
+import { Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { Board } from "@/lib/types/organization";
 
@@ -26,7 +26,7 @@ export function BoardCard({ board, orgId, index }: BoardCardProps) {
       whileHover={{ scale: 1.02 }}
       className="group"
     >
-      <Link href={`/org/${orgId}/board/${board.id}`}>
+      <Link href={`/protected/organizations/${orgId}/board/${board.id}`}>
         <div className="relative h-full overflow-hidden rounded-xl shadow-lg transition-shadow hover:shadow-2xl">
           {/* Background with gradient overlay */}
           <div

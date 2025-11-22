@@ -61,11 +61,11 @@ export function OrganizationSwitcher({ currentOrgId }: OrganizationSwitcherProps
           "flex items-center gap-2 px-3 py-2 rounded-lg transition-colors",
           "hover:bg-neutral-100 dark:hover:bg-neutral-800",
           "border border-neutral-200 dark:border-neutral-700",
-          "min-w-[200px]"
+          "lg:min-w-[200px]"
         )}
       >
         <Building2 className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
-        <span className="flex-1 text-left text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+        <span className="flex-1 text-left text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate hidden lg:inline">
           {currentOrg?.name || "Select Organization"}
         </span>
         <ChevronDown

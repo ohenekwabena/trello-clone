@@ -32,7 +32,13 @@ export async function getOrganizationBoards(orgId: string) {
 
   const { data: boards, error } = await supabase
     .from("boards")
-    .select("*")
+    .select(
+      `
+      *,
+      organization:organizations!boards_org_id_fkey(id, name, description),
+      creator:user_profiles!boards_created_by_fkey(id, email, display_name, avatar_url)
+    `
+    )
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
 
@@ -40,7 +46,7 @@ export async function getOrganizationBoards(orgId: string) {
     return { success: false, error: error.message };
   }
 
-  return { success: true, data: boards as Board[] };
+  return { success: true, data: boards as any[] };
 }
 
 /**
@@ -57,7 +63,17 @@ export async function getBoard(boardId: string) {
     return { success: false, error: "Not authenticated" };
   }
 
-  const { data: board, error } = await supabase.from("boards").select("*").eq("id", boardId).single();
+  const { data: board, error } = await supabase
+    .from("boards")
+    .select(
+      `
+      *,
+      organization:organizations!boards_org_id_fkey(id, name, description),
+      creator:user_profiles!boards_created_by_fkey(id, email, display_name, avatar_url)
+    `
+    )
+    .eq("id", boardId)
+    .single();
 
   if (error) {
     return { success: false, error: error.message };
@@ -75,7 +91,7 @@ export async function getBoard(boardId: string) {
     return { success: false, error: "Not a member of this organization" };
   }
 
-  return { success: true, data: board as Board, role: membership.role };
+  return { success: true, data: board, role: membership.role };
 }
 
 /**

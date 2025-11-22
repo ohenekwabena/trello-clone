@@ -151,7 +151,13 @@ export async function getOrganizationInvites(organizationId: string): Promise<Ac
 
     const { data, error } = await supabase
       .from("organization_invites")
-      .select("*")
+      .select(
+        `
+        *,
+        organization:organizations!organization_invites_org_id_fkey(id, name, description),
+        inviter:user_profiles!organization_invites_invited_by_fkey(id, email, display_name, avatar_url)
+      `
+      )
       .eq("org_id", organizationId)
       .order("created_at", { ascending: false });
 
@@ -174,10 +180,16 @@ export async function getInviteByToken(token: string): Promise<ActionResponse<In
   try {
     const supabase = await createClient();
 
-    // Get invite
+    // Get invite with organization and inviter profile
     const { data: invite, error: inviteError } = await supabase
       .from("organization_invites")
-      .select("*")
+      .select(
+        `
+        *,
+        organization:organizations!organization_invites_org_id_fkey(id, name, description, created_at, created_by, updated_at),
+        inviter_profile:user_profiles!organization_invites_invited_by_fkey(id, email, display_name, avatar_url, created_at, updated_at)
+      `
+      )
       .eq("token", token)
       .single();
 
@@ -185,34 +197,12 @@ export async function getInviteByToken(token: string): Promise<ActionResponse<In
       return { success: false, error: "Invite not found" };
     }
 
-    // Get organization
-    const { data: organization, error: orgError } = await supabase
-      .from("organizations")
-      .select("*")
-      .eq("id", invite.org_id)
-      .single();
-
-    if (orgError || !organization) {
-      return { success: false, error: "Organization not found" };
-    }
-
-    // Get inviter profile
-    const { data: inviterProfile, error: profileError } = await supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("id", invite.invited_by)
-      .single();
-
-    if (profileError || !inviterProfile) {
-      return { success: false, error: "Inviter profile not found" };
-    }
-
     return {
       success: true,
       data: {
-        invite,
-        organization,
-        inviter_profile: inviterProfile as UserProfile,
+        invite: invite as any,
+        organization: invite.organization as any,
+        inviter_profile: invite.inviter_profile as UserProfile,
       },
     };
   } catch (error) {

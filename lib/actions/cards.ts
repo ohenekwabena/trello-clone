@@ -27,7 +27,15 @@ export async function getListCards(listId: string) {
 
   const { data: cards, error } = await supabase
     .from("cards")
-    .select("*")
+    .select(
+      `
+      *,
+      list:lists!cards_list_id_fkey(id, title, position),
+      board:boards!cards_board_id_fkey(id, name, org_id),
+      assigned_profile:user_profiles!cards_assigned_to_fkey(id, email, display_name, avatar_url),
+      creator_profile:user_profiles!cards_created_by_fkey(id, email, display_name, avatar_url)
+    `
+    )
     .eq("list_id", listId)
     .order("position", { ascending: true });
 
@@ -35,7 +43,7 @@ export async function getListCards(listId: string) {
     return { success: false, error: error.message };
   }
 
-  return { success: true, data: cards as Card[] };
+  return { success: true, data: cards };
 }
 
 /**
@@ -57,8 +65,10 @@ export async function getCard(cardId: string) {
     .select(
       `
       *,
-      assigned_user:assigned_to(id, email),
-      created_user:created_by(id, email)
+      list:lists!cards_list_id_fkey(id, title, position),
+      board:boards!cards_board_id_fkey(id, name, org_id),
+      assigned_profile:user_profiles!cards_assigned_to_fkey(id, email, display_name, avatar_url),
+      creator_profile:user_profiles!cards_created_by_fkey(id, email, display_name, avatar_url)
     `
     )
     .eq("id", cardId)
@@ -68,7 +78,7 @@ export async function getCard(cardId: string) {
     return { success: false, error: error.message };
   }
 
-  return { success: true, data: card as any as CardWithDetails };
+  return { success: true, data: card };
 }
 
 /**
