@@ -72,7 +72,7 @@ function generateInviteEmailHTML({
                 <strong>${inviterName}</strong> has invited you to join <strong>${organizationName}</strong> as a <strong>${role}</strong>.
               </p>
               <p style="margin: 0 0 30px; color: #666666; font-size: 15px; line-height: 1.6;">
-                Sign in to your account and click the button below to accept the invitation:
+                Click the button below to view your invitation. You'll need to sign in to accept or decline.
               </p>
               
               <!-- CTA Button -->

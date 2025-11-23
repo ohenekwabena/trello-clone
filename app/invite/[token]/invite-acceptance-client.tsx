@@ -208,6 +208,18 @@ export function InviteAcceptanceClient({ inviteInfo, user, token }: InviteAccept
                 </div>
               )}
 
+              {/* Authenticated Success Message */}
+              {user &&
+                user.email?.toLowerCase() === invite.email.toLowerCase() &&
+                !isAlreadyResponded &&
+                !isExpired && (
+                  <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <p className="text-sm text-green-800 dark:text-green-300">
+                      ✅ You're signed in as <strong>{user.email}</strong>. Ready to accept this invitation!
+                    </p>
+                  </div>
+                )}
+
               {/* Actions */}
               {!isAlreadyResponded && !isExpired && (
                 <div className="flex flex-col gap-3">
